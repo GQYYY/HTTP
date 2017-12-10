@@ -20,7 +20,7 @@ def permutation(lst,length='ALL'):
 
 def cartesian_product(lst):
     '''
-    计算列表lst中各个子列表的迪卡尔积
+        计算列表lst中各个子列表的迪卡尔积,同时去重
 
     lst = [sub_lst1,sub_lst2, ... ]
     '''

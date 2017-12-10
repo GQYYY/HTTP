@@ -48,6 +48,7 @@ class Request:
         values = utils.permutation(value)
         
         #len(style)<num的情况下，用0(表示无空格)填补
+        
         style.extend([0]*(num-len(style)))
         #得到style的所有排列，去重
         styles = utils.permutation(style)
@@ -62,6 +63,7 @@ class Request:
         得到该Request的所有可能的Header_Line，存入一个列表(self.Header_Lines)中
         该Request中出现的所有Header对应的行都写进一个字符串，一个字符串表示一种Headers(所有Header都包括)的取值
         '''   
+        header_lines = []
         header_name_lst = self.Headers.keys()
         header_info_lst = self.Headers.values()
         
@@ -72,8 +74,9 @@ class Request:
                     for i in range(len(headers_with_same_name[0])):
                         header_line += self.get_single_header_line(header_name,headers_with_same_name[0][i]
                                                                   ,headers_with_same_name[1][i],header_line_crlf)
-                self.Header_Lines.append(header_line)
-        return self.Header_Lines
+                header_lines.append(header_line)
+        self.Header_Lines = header_lines
+        return header_lines
            
         
     def get_single_header_line(self,header_name,header_value,header_style,header_line_crlf):
