@@ -18,7 +18,7 @@ class Request:
         
     def request_line(self,Method=['GET'],Request_URI=['/'],HTTP_Version=['HTTP/1.1'],Space=[' '],Line_CRLF=['\r\n']):
         '''
-        得到该Request的所有可能的Request_Line，存入一个列表(self.Request_Line)中
+        得到该Request的所有可能的Request_Line，存入列表self.Request_Line中
         '''
         for request_line_components in utils.cartesian_product([Method,Request_URI,HTTP_Version,Space,Line_CRLF]):
             method,request_uri,http_version,space,line_crlf = request_line_components
@@ -40,10 +40,12 @@ class Request:
         self.End_Line = end_line
     
     
-    def header_copy(self,name='',num=0,value=[],style=[]):
+    def header_copy(self,name='',num=0,value=[],style=None):
         '''
         在该Request中，得到名为name的Header对应的所有value和style的组合，存入self.Headers[name]中
         '''
+        if not style:
+            style = []
         #得到value的所有排列，去重
         values = utils.permutation(value)
         
@@ -60,7 +62,7 @@ class Request:
       
     def header_lines(self):
         '''
-        得到该Request的所有可能的Header_Line，存入一个列表(self.Header_Lines)中
+        得到该Request的所有可能的Header_Line，存入列表self.Header_Lines中
         该Request中出现的所有Header对应的行都写进一个字符串，一个字符串表示一种Headers(所有Header都包括)的取值
         '''   
         header_lines = []
@@ -97,7 +99,8 @@ class Request:
     
     def get_request(self):
         '''
-        返回该Request所有可能的字符串表示，字符串列表
+        返回该Request所有可能的字符串表示
+        以一个字符串列表的形式返回
         '''
         requests = []
         for request_line in self.Request_Line:
@@ -106,8 +109,3 @@ class Request:
                     requests.append(request_line+header_line+end_line)
                     
         return requests
-    
-    
-   
-
-        
