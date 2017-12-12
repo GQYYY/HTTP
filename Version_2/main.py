@@ -3,6 +3,7 @@
 
 import argparse
 import generator
+from texttable import Texttable
 
 #添加命令行参数
 parser = argparse.ArgumentParser()
@@ -40,6 +41,31 @@ print ('所生成的Request如下：')
 for request in requests:
     print(request)
 
+#结果展示与对比
 print ('测试结果如下：')
 #用得到的requests对所有的待测工具进行Differential Testing
 raw_result, result = generator.network_test(requests)
+
+
+table = Texttable
+table.set_deco(Texttabble.HEADER)
+table.set_cols_dtype(['t','t','t'])
+table.set_cols_align(['l','l','l'])
+rows = []
+
+table_header_line = [u'no']
+keys = list(result.keys())
+values = list(result.values())
+table_header_line.extend(keys)
+rows.append(table_header_line)
+
+for i in range(len(values)):
+    for j in range(len(values[i])):
+        row = []
+        row.append()
+    
+rows.append([,u'',u''])
+
+
+table.add_rows(rows)
+print (table.draw())

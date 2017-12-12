@@ -16,11 +16,6 @@ class Generator:
         self.request = http_request.Request()   #Request类的对象
         self.network_path = network_path
         self.network = network
-        
-        self.attack_html = '<!DOCTYPE html>\n<html>\n<head>\n<title>Attack!</title>\n<style>\n    body {\n        width: 35em;\n        margin: 0 auto;\n        font-family: Tahoma, Verdana, Arial, sans-serif;\n    }\n</style>\n</head>\n<body>\n<h1>This is www.attack.com!</h1>\n<h1>You have been hacked!</h1>\n\n\n<p><em>You have been hacked!</em></p>\n</body>\n</html>\n'
-        self.benigh_html = '<!DOCTYPE html>\n<html>\n<head>\n<title>Benigh!</title>\n<style>\n    body {\n        width: 35em;\n        margin: 0 auto;\n        font-family: Tahoma, Verdana, Arial, sans-serif;\n    }\n</style>\n</head>\n<body>\n<h1>Welcome to www.benigh.com!</h1>\n\n<p><em>Thank you for logining in www.benigh.com!</em></p>\n</body>\n</html>\n'
-        self.bad_request_html = '<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body bgcolor="white">\r\n<center><h1>400 Bad Request</h1></center>\r\n<hr><center>nginx/1.13.6</center>\r\n</body>\r\n</html>\r\n'
-        
     
     def conf_parse(self,conf_path,conf_file):
         '''
@@ -73,12 +68,12 @@ class Generator:
         得到的resonse逐一添加到一个列表中并返回
         '''
         response_lst = []
-        #建立一个socket对象
-        client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        #客户端链接服务器端
-        client.connect((target_host,target_port))
-
         for request in requests:
+            #建立一个socket对象
+            client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            #客户端链接服务器端
+            client.connect((target_host,target_port))
+            
             #把str类型的request转成bytes类型
             request = bytes(request,encoding='utf-8')
             #发送数据
@@ -88,41 +83,50 @@ class Generator:
             #将bytes类型转成str
             response = bytes.decode(response)
             response_lst.append(response)
-            time.sleep(1)
+            
+            client.close()
+            time.sleep(0.1)
         return response_lst
     
     
     def network_test(self,requests):
         '''
         解析网络配置文件，并将requests列表中的请求逐一发给由网络配置文件设置的各个server工具，
-        并进行differential testing
+        并进行differential testing，最后返回原始的response和精简后的结果
         '''
         raw_result = {}
-        servers = utils.load(self.network_path+self.network).get('server')
-        #对各个server进行differential testing
+        network_dict = utils.load(self.network_path+self.network)
+        servers = network_dict.get('server')
+        #对各个server进行differential testing，并得到原始的response结果
         for server in servers:
             raw_result[server.get('name')] = self.get_response(requests,
-                                                           server.get('host'),server.get('port'))
+                                                               server.get('host'),server.get('port'))
         
-        #分析各个server的结果是否一致
+        #提取并返回原始response结果中的status_code,reason_phrase和html页面
         result = {}
         for server_name,response_lst in raw_result.items():
             result[server_name] = []
             for response in response_lst:
                 headers,message_body = response.split('\r\n\r\n')
-                status_code = headers.split('\r\n')[0]
-                
-                if message_body == self.attack_html:
-                    html_content = 'attack.html'
-                elif message_body == self.benigh_html:
-                    html_content = 'benigh.html'
-                elif message_body == self.bad_request_html:
-                    html_content = 'bad_request.html'
-                else:
-                    html_content = 'other'
-                
-                result[server_name].append((status_code,html_content))
-            print (server_name ,':',result.get(server_name))
+                status_line = headers.split('\r\n')[0]
+                status_code = status_line.split(' ')[1]
+                reason_phrase = status_line.split(' ')[2:]
+                if isinstance(reason_phrase,list):
+                    reason_phrase = ' '.join(reason_phrase)
+                    
+                html_content = None
+                if status_code == '200' and message_body:
+                    for key,value in network_dict.get('web_html').items():
+                        if message_body == value:
+                            html_content = key
+                            break
+                elif not message_body:
+                    print('message为空')
+                            
+                result[server_name].append((status_code,reason_phrase,html_content))
+            
+            print (server_name ,':')
+            print (result.get(server_name))
             print ('\n')
             
         return raw_result,result
