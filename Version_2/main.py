@@ -37,35 +37,40 @@ generator.conf_parse(args.rule_path,args.rule)
 #得到所有可能的HTTP Request的字符串表示
 requests = generator.get_request()
 
-print ('所生成的Request如下：')
+print ('所生成的Request如下:\n')
 for request in requests:
     print(request)
 
 #结果展示与对比
-print ('测试结果如下：')
+print ('测试结果如下:\n')
 #用得到的requests对所有的待测工具进行Differential Testing
 raw_result, result = generator.network_test(requests)
 
-
-table = Texttable
-table.set_deco(Texttabble.HEADER)
-table.set_cols_dtype(['t','t','t'])
-table.set_cols_align(['l','l','l'])
-rows = []
-
-table_header_line = [u'no']
 keys = list(result.keys())
 values = list(result.values())
+
+table = Texttable()
+table.set_deco(Texttable.HEADER)
+
+#设置每列的数据类型，均为text
+cols_dtype = ['t']*(len(keys)+1)
+table.set_cols_dtype(cols_dtype)    
+
+#设置每列的对齐方式
+cols_align = ['l']
+cols_align.extend(['r']*len(keys))
+table.set_cols_align(cols_align)
+
+rows = []
+table_header_line = [u'Test Case\n ID']    #表头行
 table_header_line.extend(keys)
 rows.append(table_header_line)
 
-for i in range(len(values)):
-    for j in range(len(values[i])):
-        row = []
-        row.append()
+for j in range(len(values[0])):   #对所有的test case的编号进行遍历
+    row = [j+1]
+    for i in range(len(values)):  #对所有的key的编号进行遍历
+        row.append(values[i][j])
+    rows.append(row)
     
-rows.append([,u'',u''])
-
-
 table.add_rows(rows)
-print (table.draw())
+print (table.draw()+'\n')

@@ -125,9 +125,9 @@ class Generator:
                             
                 result[server_name].append((status_code,reason_phrase,html_content))
             
-            print (server_name ,':')
-            print (result.get(server_name))
-            print ('\n')
+#             print (server_name ,':')
+#             print (result.get(server_name))
+#             print ('\n')
             
         return raw_result,result
         
