@@ -46,8 +46,8 @@ class Request:
         '''
         if not style:
             style = []
-        #得到value的所有排列，去重
-        values = utils.permutation(value)
+        #得到value中取num个值的排列，并去重
+        values = utils.permutation(value,length=num)
         
         #len(style)<num的情况下，用0(表示无空格)填补
         

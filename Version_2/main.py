@@ -7,7 +7,7 @@ from texttable import Texttable
 
 #添加命令行参数
 parser = argparse.ArgumentParser()
-parser.add_argument('rule',metavar='rule',help='specify the file name of rule configuration(.conf)')
+parser.add_argument('rule',metavar='rule',nargs='+',help='specify the file name of rule configuration(.conf)')
 parser.add_argument('-rp','--rule-path',metavar='rule_path',
                     help='specify the path of rule configuration files',
                     default='/home/gqy/Desktop/Http_Gengerator/Version_2/config/rules/')
@@ -31,14 +31,16 @@ generator = generator.Generator(network_path=args.network_path, network=args.net
 
 #分别解析Grammar文件和Rule文件
 generator.conf_parse(args.grammar_path,args.grammar)
-generator.conf_parse(args.rule_path,args.rule)
+for rule in args.rule:
+    generator.conf_parse(args.rule_path,rule)
 
 
 #得到所有可能的HTTP Request的字符串表示
 requests = generator.get_request()
 
 print ('所生成的Request如下:\n')
-for request in requests:
+for index,request in enumerate(requests,1):
+    print('第%d个:'%(index))
     print(request)
 
 #结果展示与对比
@@ -57,7 +59,7 @@ cols_dtype = ['t']*(len(keys)+1)
 table.set_cols_dtype(cols_dtype)    
 
 #设置每列的对齐方式
-cols_align = ['l']
+cols_align = ['c']
 cols_align.extend(['r']*len(keys))
 table.set_cols_align(cols_align)
 

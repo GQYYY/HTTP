@@ -77,15 +77,14 @@ class Generator:
             #把str类型的request转成bytes类型
             request = bytes(request,encoding='utf-8')
             #发送数据
-            client.send(request)
+            client.sendall(request)
             #接收服务器返回的resonse,此时response是bypes类型
-            response = client.recv(4096)
+            response = client.recv(20480)
             #将bytes类型转成str
             response = bytes.decode(response)
             response_lst.append(response)
             
             client.close()
-            time.sleep(0.1)
         return response_lst
     
     
