@@ -14,6 +14,7 @@ class Request:
         self.Header_Lines = []
         self.Header_Line_CRLF = []
         self.End_Line = []
+        self
         
         
     def request_line(self,Method=['GET'],Request_URI=['/'],HTTP_Version=['HTTP/1.1'],Space=[' '],Line_CRLF=['\r\n']):
@@ -40,24 +41,31 @@ class Request:
         self.End_Line = end_line
     
     
-    def header_copy(self,name='',num=0,value=[],style=None):
+    def header_copy(self,name='',num=0,value=[],style=None,delimiter=None):
         '''
         在该Request中，得到名为name的Header对应的所有value和style的组合，存入self.Headers[name]中
         '''
         if not style:
             style = []
+        if not delimiter:
+            delimiter = []
+        
         #得到value中取num个值的排列，并去重
         values = utils.permutation(value,length=num)
         
         #len(style)<num的情况下，用0(表示无空格)填补
-        
         style.extend([0]*(num-len(style)))
         #得到style的所有排列，去重
         styles = utils.permutation(style)
         
-        #对values和styles求迪卡尔积
-        values_and_styles = utils.cartesian_product([values,styles])
-        self.Headers[name] = values_and_styles
+        #len(delimiter)<num的情况下，用空格(' ')填补
+        delimiter.extend([' ']*(num-len(delimiter)))
+        #得到delimiter的所有排列，去重
+        delimiters = utils.permutation(delimiter)
+        
+        #对values、styles和delimiter求迪卡尔积
+        values_and_styles_and_delimiters = utils.cartesian_product([values,styles,delimiters])
+        self.Headers[name] = values_and_styles_and_delimiters
         
       
     def header_lines(self):
@@ -74,25 +82,28 @@ class Request:
                 header_line = ''
                 for header_name, headers_with_same_name in zip(header_name_lst,headers_info):
                     for i in range(len(headers_with_same_name[0])):
-                        header_line += self.get_single_header_line(header_name,headers_with_same_name[0][i]
-                                                                  ,headers_with_same_name[1][i],header_line_crlf)
+                        header_line += self.get_single_header_line(header_name,
+                                                                   headers_with_same_name[0][i],
+                                                                   headers_with_same_name[1][i],
+                                                                   headers_with_same_name[2][i],
+                                                                   header_line_crlf)
                 header_lines.append(header_line)
         self.Header_Lines = header_lines
         return header_lines
            
         
-    def get_single_header_line(self,header_name,header_value,header_style,header_line_crlf):
+    def get_single_header_line(self,header_name,header_value,header_style,delimiter,header_line_crlf):
         '''
         返回单行header_line的字符串
         以'Host'为例，根据参数不同，得到不同的结果:
-        * ('Host','www.benigh.com',0,'\r\n')    ---> 'Host:www.benigh.com\r\n'
-        * ('Host','www.benigh.com',-1,'\r\n')   ---> ' Host:www.benigh.com\r\n'
-        * ('Host','www.benigh.com',1,'\r\n')    ---> 'Host: www.benigh.com\r\n'
+        * ('Host','www.benigh.com',0,' ','\r\n')    ---> 'Host:www.benigh.com\r\n'
+        * ('Host','www.benigh.com',-1,' ','\r\n')   ---> ' Host:www.benigh.com\r\n'
+        * ('Host','www.benigh.com',1,' ','\r\n')    ---> 'Host: www.benigh.com\r\n'
         '''       
         if header_style<0:
-            header_name = ' '*(0-header_style) + header_name + ':'
+            header_name = delimiter *(0-header_style) + header_name + ':'
         else:
-            header_name = header_name + ':' + ' '*header_style
+            header_name = header_name + ':' + delimiter *header_style
         
         return header_name + header_value + header_line_crlf
     
