@@ -43,36 +43,36 @@ for index,request in enumerate(requests,1):
     print('第%d个:'%(index))
     print(request)
 
-# #结果展示与对比
-# print ('测试结果如下:\n')
-# #用得到的requests对所有的待测工具进行Differential Testing
-# raw_result, result = generator.network_test(requests)
+#结果展示与对比
+print ('测试结果如下:\n')
+#用得到的requests对所有的待测工具进行Differential Testing
+raw_result, result = generator.network_test(requests)
 
-# keys = list(result.keys())
-# values = list(result.values())
+keys = list(result.keys())
+values = list(result.values())
 
-# table = Texttable()
-# table.set_deco(Texttable.HEADER)
+table = Texttable()
+table.set_deco(Texttable.HEADER)
 
-# #设置每列的数据类型，均为text
-# cols_dtype = ['t']*(len(keys)+1)
-# table.set_cols_dtype(cols_dtype)    
+#设置每列的数据类型，均为text
+cols_dtype = ['t']*(len(keys)+1)
+table.set_cols_dtype(cols_dtype)    
 
-# #设置每列的对齐方式
-# cols_align = ['c']
-# cols_align.extend(['r']*len(keys))
-# table.set_cols_align(cols_align)
+#设置每列的对齐方式
+cols_align = ['c']
+cols_align.extend(['r']*len(keys))
+table.set_cols_align(cols_align)
 
-# rows = []
-# table_header_line = [u'Test Case\n ID']    #表头行
-# table_header_line.extend(keys)
-# rows.append(table_header_line)
+rows = []
+table_header_line = [u'Test Case\n ID']    #表头行
+table_header_line.extend(keys)
+rows.append(table_header_line)
 
-# for j in range(len(values[0])):   #对所有的test case的编号进行遍历
-#     row = [j+1]
-#     for i in range(len(values)):  #对所有的key的编号进行遍历
-#         row.append(values[i][j])
-#     rows.append(row)
+for j in range(len(values[0])):   #对所有的test case的编号进行遍历
+    row = [j+1]
+    for i in range(len(values)):  #对所有的key的编号进行遍历
+        row.append(values[i][j])
+    rows.append(row)
     
-# table.add_rows(rows)
-# print (table.draw()+'\n')
+table.add_rows(rows)
+print (table.draw()+'\n')
